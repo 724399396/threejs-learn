@@ -1,12 +1,13 @@
 import { createCamera } from "./components/camera.js";
-import { createMeshGroup } from "./components/meshGroup.js";
 import { createLights } from "./components/lights.js";
 import { createScene } from "./components/scene.js";
+import { Train } from "./components/Train/Train.js";
 
 import { createControls } from "./systems/controls.js";
 import { createRenderer } from "./systems/renderer.js";
 import { Resizer } from "./systems/Resizer.js";
 import { Loop } from "./systems/Loop.js";
+import { createAxesHelper, createGridHelper } from "./components/helper.js";
 
 // These variables are module-scoped: we cannot access them
 // from outside the module
@@ -24,20 +25,17 @@ class World {
     container.append(renderer.domElement);
 
     const controls = createControls(camera, renderer.domElement);
-
-    controls.addEventListener("change", () => {
-      this.render();
-    });
-
     const { ambientLight, mainLight } = createLights();
-    const meshGroup = createMeshGroup();
 
-    loop.updatables.push(controls, meshGroup);
-    //loop.updatables.push(cube);
+    const train = new Train();
 
-    scene.add(ambientLight, mainLight, meshGroup);
+    loop.updatables.push(controls, train);
+
+    scene.add(ambientLight, mainLight, train);
 
     const resizer = new Resizer(container, camera, renderer);
+
+    scene.add(createAxesHelper(), createGridHelper());
   }
 
   render() {
