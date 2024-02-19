@@ -1,3 +1,4 @@
+import { loadBirds } from "./components/birds/birds.js";
 import { createCamera } from "./components/camera.js";
 import { createLights } from "./components/lights.js";
 import { createScene } from "./components/scene.js";
@@ -12,6 +13,7 @@ import { createAxesHelper, createGridHelper } from "./components/helper.js";
 // These variables are module-scoped: we cannot access them
 // from outside the module
 let camera;
+let controls;
 let renderer;
 let scene;
 let loop;
@@ -23,19 +25,26 @@ class World {
     renderer = createRenderer();
     loop = new Loop(camera, scene, renderer);
     container.append(renderer.domElement);
+    controls = createControls(camera, renderer.domElement);
 
-    const controls = createControls(camera, renderer.domElement);
     const { ambientLight, mainLight } = createLights();
 
-    const train = new Train();
+    loop.updatables.push(controls);
 
-    loop.updatables.push(controls, train);
-
-    scene.add(ambientLight, mainLight, train);
+    scene.add(ambientLight, mainLight);
 
     const resizer = new Resizer(container, camera, renderer);
 
     scene.add(createAxesHelper(), createGridHelper());
+  }
+
+  async init() {
+    const { parrot, flamingo, stork } = await loadBirds();
+
+    controls.target.copy(parrot.position);
+
+    loop.updatables.push(parrot, flamingo, stork);
+    scene.add(parrot, flamingo, stork);
   }
 
   render() {
